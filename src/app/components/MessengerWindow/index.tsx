@@ -25,7 +25,6 @@ import {
     deleteNotification,
     recieveMes,
     selectChat,
-    selectChatState,
     selectChats,
     selectId,
     selectLoginStatus,
@@ -39,14 +38,13 @@ import { Authorization } from "./Authorization";
 import { Input } from "./Authorization/style";
 import { useAppDispatch } from "../../store/store";
 import { Clock, Done, DoneAll } from "./icons";
-import { IChat, IChatState, IReceiptIds } from "../../store/interfaces";
+import { IChat, IReceiptIds } from "../../store/interfaces";
 
 export const MessengerWindow: FC = () => {
     const status: boolean = useSelector(selectLoginStatus);
     const phoneInput: string = useSelector(selectPhoneInput);
     const chats: IChat[] = useSelector(selectChats);
     const newMessage: string = useSelector(selectNewMessageInput);
-    const chatState: IChatState = useSelector(selectChatState);
     const receiptIds: IReceiptIds[] = useSelector(selectReceiptIds);
     const id: string = useSelector(selectId);
     const token: string = useSelector(selectToken);

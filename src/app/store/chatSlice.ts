@@ -268,7 +268,6 @@ export const {
 
 export const selectLoginStatus = (state: RootState) => state.chat.loginStatus;
 export const selectAccountState = (state: RootState) => state.chat.accountState;
-export const selectChatState = (state: RootState) => state.chat;
 export const selectId = (state: RootState) => state.chat.id;
 export const selectToken = (state: RootState) => state.chat.token;
 export const selectPhoneInput = (state: RootState) => state.chat.phoneInput;

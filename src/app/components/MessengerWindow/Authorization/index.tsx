@@ -28,9 +28,8 @@ export const Authorization: FC = () => {
             <AuthorizationForm
                 onSubmit={(e) => {
                     e.preventDefault();
-                    dispatch(doLogin({ id: idInput, token: tokenInput }));
-                    console.log(idInput);
-                }}
+                    idInput && tokenInput && dispatch(doLogin({ id: idInput, token: tokenInput }));
+                 }}
             >
                 <AuthorizationHeader>Авторизируйся</AuthorizationHeader>
                 <Input

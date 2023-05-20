@@ -155,14 +155,14 @@ export const MessengerWindow: FC = () => {
         let intId: NodeJS.Timer;
         if (status) {
             intId = setInterval(() => {
-                dispatch(recieveMes(chatState));
+                dispatch(recieveMes({id: id, token: token}));
             }, 5000);
         }
 
         return () => {
             clearInterval(intId);
         };
-    }, [status, chatState, dispatch]);
+    }, [status, id, token, dispatch]);
 
     return (
         <Wrapper>

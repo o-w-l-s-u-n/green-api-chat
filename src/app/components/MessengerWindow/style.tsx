@@ -144,3 +144,13 @@ export const MessegesContainer = styled.div`
     padding: 5px;
     color: white;
 `;
+
+export const AccountStateDisplay = styled.div<{ $accountState: string }>`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    color: #8697a0;
+`;

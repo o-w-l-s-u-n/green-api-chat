@@ -24,6 +24,7 @@ export interface IChat {
 
 export interface IChatState {
     loginStatus: boolean;
+    accountState: "notAuthorized" | "authorized" | "blocked" | "sleepMode" | "starting" | "idle";
     id: string;
     token: string;
     chats: IChat[];
@@ -31,6 +32,7 @@ export interface IChatState {
     newMessageInput: string;
     sendingStatus: "sending" | "error" | "success" | "idle";
     recievingStatus: "recieving" | "error" | "success" | "idle";
+    getAccountStateStatus: "recieving" | "error" | "success" | "idle";
     recieptIds: IReceiptIds[];
 }
 

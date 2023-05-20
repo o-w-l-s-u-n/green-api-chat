@@ -13,12 +13,22 @@ import {
     selectIdInput,
     selectTokenInput,
 } from "../../../store/authSlice";
-import { doLogin } from "../../../store/chatSlice";
+import {
+    doLogin,
+    getAccountState,
+    selectChatState,
+    selectId,
+    selectToken,
+} from "../../../store/chatSlice";
+import { useAppDispatch } from "../../../store/store";
 
 export const Authorization: FC = () => {
     const idInput = useSelector(selectIdInput);
     const tokenInput = useSelector(selectTokenInput);
-    const dispatch = useDispatch();
+    const chatState = useSelector(selectChatState);
+    const token = useSelector(selectToken);
+    const idInstance = useSelector(selectId);
+    const dispatch = useAppDispatch();
     useEffect(() => console.log(idInput, tokenInput), [idInput, tokenInput]);
     return (
         <AuthorizationScreen>
@@ -26,6 +36,7 @@ export const Authorization: FC = () => {
                 onSubmit={(e) => {
                     e.preventDefault();
                     dispatch(doLogin({ id: idInput, token: tokenInput }));
+                    dispatch(getAccountState(chatState));
                     console.log(idInput);
                 }}
             >

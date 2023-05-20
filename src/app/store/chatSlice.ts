@@ -1,10 +1,16 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "./store";
-import { IChatState, IIncomingMessage, IMessage, IOutgoingMessageStatus } from "./interfaces";
-
+import {
+    IChatState,
+    IIncomingMessage,
+    IMessage,
+    IOutgoingMessageStatus,
+} from "./interfaces";
+import { act } from "react-dom/test-utils";
 
 const initialState: IChatState = {
     loginStatus: false,
+    accountState: "idle",
     id: "",
     token: "",
     chats: [],
@@ -12,8 +18,24 @@ const initialState: IChatState = {
     newMessageInput: "",
     sendingStatus: "idle",
     recievingStatus: "idle",
+    getAccountStateStatus: "idle",
     recieptIds: [],
 };
+
+export const getAccountState = createAsyncThunk(
+    "chat/getAccState",
+    async (state: IChatState) => {
+        try {
+            const response = await fetch(
+                `https://api.green-api.com/waInstance${state.id}/getStateInstance/${state.token}`
+            );
+            const json = await response.json();
+            return json;
+        } catch (error) {
+            return error;
+        }
+    }
+);
 
 export const sendMes = createAsyncThunk(
     "chat/sendMessage",
@@ -137,6 +159,16 @@ export const chatSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
+        builder.addCase(getAccountState.pending, (state) => {
+            state.getAccountStateStatus = "recieving";
+        });
+        builder.addCase(getAccountState.rejected, (state) => {
+            state.getAccountStateStatus = "error";
+        });
+        builder.addCase(getAccountState.fulfilled, (state, action) => {
+            state.getAccountStateStatus = "success";
+            state.accountState = action.payload.stateInstance;
+        });
         builder.addCase(sendMes.pending, (state) => {
             state.sendingStatus = "sending";
         });
@@ -259,6 +291,7 @@ export const {
 } = chatSlice.actions;
 
 export const selectLoginStatus = (state: RootState) => state.chat.loginStatus;
+export const selectAccountState = (state: RootState) => state.chat.accountState;
 export const selectChatState = (state: RootState) => state.chat;
 export const selectId = (state: RootState) => state.chat.id;
 export const selectToken = (state: RootState) => state.chat.token;

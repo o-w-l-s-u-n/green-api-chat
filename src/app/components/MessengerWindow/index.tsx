@@ -1,5 +1,6 @@
 import { FC, useCallback, useEffect } from "react";
 import {
+    AccountStateDisplay,
     Chat,
     ChatHeader,
     Chats,
@@ -24,6 +25,7 @@ import {
     clearReceiptsIds,
     deleteNotification,
     recieveMes,
+    selectAccountState,
     selectChat,
     selectChatState,
     selectChats,
@@ -50,6 +52,7 @@ export const MessengerWindow: FC = () => {
     const receiptIds: IReceiptIds[] = useSelector(selectReceiptIds);
     const id: string = useSelector(selectId);
     const token: string = useSelector(selectToken);
+    const accountState = useSelector(selectAccountState);
     const dispatch = useAppDispatch();
 
     const autoResize = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -104,7 +107,9 @@ export const MessengerWindow: FC = () => {
                     const formattedTime = `${hours}:${minutes}`;
                     return (
                         <SendedMessage key={message.id} $type={message.type}>
-                            <MessageText $messageType={message.type}>{message.content}</MessageText>
+                            <MessageText $messageType={message.type}>
+                                {message.content}
+                            </MessageText>
                             <MessageTime $messageType={message.type}>
                                 {formattedTime}
                             </MessageTime>
@@ -157,7 +162,11 @@ export const MessengerWindow: FC = () => {
         <Wrapper>
             {!status && <Authorization></Authorization>}
             <ChatsColumn>
-                <ChatHeader $position="chatsList">sdf</ChatHeader>
+                <ChatHeader $position="chatsList">
+                    <AccountStateDisplay $accountState={accountState}>
+                        {accountState}
+                    </AccountStateDisplay>
+                </ChatHeader>
                 <PhoneForm
                     onSubmit={(e) => {
                         e.preventDefault();
@@ -178,7 +187,7 @@ export const MessengerWindow: FC = () => {
                 <Chats>{chatsToogles()}</Chats>
             </ChatsColumn>
             <Dialog>
-                <ChatHeader $position="dialog">sdf</ChatHeader>
+                <ChatHeader $position="dialog"></ChatHeader>
                 {messeges()}
 
                 <MessageInputForm>

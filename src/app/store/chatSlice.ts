@@ -1,12 +1,12 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import {
+    IChat,
     IChatState,
     IIncomingMessage,
     IMessage,
     IOutgoingMessageStatus,
 } from "./interfaces";
-import { act } from "react-dom/test-utils";
 
 const initialState: IChatState = {
     loginStatus: false,
@@ -22,30 +22,16 @@ const initialState: IChatState = {
     recieptIds: [],
 };
 
-export const getAccountState = createAsyncThunk(
-    "chat/getAccState",
-    async (state: IChatState) => {
-        try {
-            const response = await fetch(
-                `https://api.green-api.com/waInstance${state.id}/getStateInstance/${state.token}`
-            );
-            const json = await response.json();
-            return json;
-        } catch (error) {
-            return error;
-        }
-    }
-);
 
 export const sendMes = createAsyncThunk(
     "chat/sendMessage",
-    async (state: IChatState) => {
-        const chatToSendMessage = state.chats.find(
+    async ({id, token, chats, newMessageInput} : {id: string, token: string, chats: IChat[], newMessageInput: string}) => {
+        const chatToSendMessage = chats.find(
             (chat) => chat.current === true
         );
         try {
             const response = await fetch(
-                `https://api.green-api.com/waInstance${state.id}/sendMessage/${state.token}`,
+                `https://api.green-api.com/waInstance${id}/sendMessage/${token}`,
                 {
                     method: "POST",
                     headers: {
@@ -53,7 +39,7 @@ export const sendMes = createAsyncThunk(
                     },
                     body: JSON.stringify({
                         chatId: chatToSendMessage?.phone + "@c.us",
-                        message: state.newMessageInput,
+                        message: newMessageInput,
                     }),
                 }
             );
@@ -69,10 +55,10 @@ export const sendMes = createAsyncThunk(
 
 export const recieveMes = createAsyncThunk(
     "chat/recieveMessage",
-    async (state: IChatState) => {
+    async ({id, token} : {id:string, token: string}) => {
         try {
             const response =
-                await fetch(`https://api.green-api.com/waInstance${state.id}/ReceiveNotification/${state.token}
+                await fetch(`https://api.green-api.com/waInstance${id}/ReceiveNotification/${token}
             `);
             const json = await response.json();
             return json;
@@ -159,16 +145,6 @@ export const chatSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(getAccountState.pending, (state) => {
-            state.getAccountStateStatus = "recieving";
-        });
-        builder.addCase(getAccountState.rejected, (state) => {
-            state.getAccountStateStatus = "error";
-        });
-        builder.addCase(getAccountState.fulfilled, (state, action) => {
-            state.getAccountStateStatus = "success";
-            state.accountState = action.payload.stateInstance;
-        });
         builder.addCase(sendMes.pending, (state) => {
             state.sendingStatus = "sending";
         });

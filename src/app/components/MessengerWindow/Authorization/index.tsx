@@ -6,7 +6,7 @@ import {
     Input,
     Button,
 } from "./style";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
     changeIdInput,
     changeTokenInput,
@@ -15,19 +15,12 @@ import {
 } from "../../../store/authSlice";
 import {
     doLogin,
-    getAccountState,
-    selectChatState,
-    selectId,
-    selectToken,
 } from "../../../store/chatSlice";
 import { useAppDispatch } from "../../../store/store";
 
 export const Authorization: FC = () => {
     const idInput = useSelector(selectIdInput);
     const tokenInput = useSelector(selectTokenInput);
-    const chatState = useSelector(selectChatState);
-    const token = useSelector(selectToken);
-    const idInstance = useSelector(selectId);
     const dispatch = useAppDispatch();
     useEffect(() => console.log(idInput, tokenInput), [idInput, tokenInput]);
     return (
@@ -36,7 +29,6 @@ export const Authorization: FC = () => {
                 onSubmit={(e) => {
                     e.preventDefault();
                     dispatch(doLogin({ id: idInput, token: tokenInput }));
-                    dispatch(getAccountState(chatState));
                     console.log(idInput);
                 }}
             >

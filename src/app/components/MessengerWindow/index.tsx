@@ -1,6 +1,5 @@
 import { FC, useCallback, useEffect } from "react";
 import {
-    AccountStateDisplay,
     Chat,
     ChatHeader,
     Chats,
@@ -25,7 +24,6 @@ import {
     clearReceiptsIds,
     deleteNotification,
     recieveMes,
-    selectAccountState,
     selectChat,
     selectChatState,
     selectChats,
@@ -52,7 +50,6 @@ export const MessengerWindow: FC = () => {
     const receiptIds: IReceiptIds[] = useSelector(selectReceiptIds);
     const id: string = useSelector(selectId);
     const token: string = useSelector(selectToken);
-    const accountState = useSelector(selectAccountState);
     const dispatch = useAppDispatch();
 
     const autoResize = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -65,7 +62,15 @@ export const MessengerWindow: FC = () => {
     const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
-            if (newMessage) dispatch(sendMes(chatState));
+            if (newMessage)
+                dispatch(
+                    sendMes({
+                        id: id,
+                        token: token,
+                        chats: chats,
+                        newMessageInput: newMessage,
+                    })
+                );
         }
     };
 
@@ -76,6 +81,7 @@ export const MessengerWindow: FC = () => {
                     <Chat
                         $selected={chat.current}
                         onClick={() => dispatch(selectChat(chat.id))}
+                        key={chat.id}
                     >
                         <SenderName>{chat.senderName}</SenderName>
                         <LastMessage>{chat?.phone}</LastMessage>
@@ -163,9 +169,6 @@ export const MessengerWindow: FC = () => {
             {!status && <Authorization></Authorization>}
             <ChatsColumn>
                 <ChatHeader $position="chatsList">
-                    <AccountStateDisplay $accountState={accountState}>
-                        {accountState}
-                    </AccountStateDisplay>
                 </ChatHeader>
                 <PhoneForm
                     onSubmit={(e) => {

@@ -3,6 +3,10 @@
 ## Сайт, на котром можно посмотреть результат выполненной работы: 
 ### https://magerk3.github.io/green-api-chat/
 
+## Видео работы:
+
+### https://disk.yandex.ru/i/CeJnVDBf_Bx9xg
+
 ## Используемые технологии: 
   - TypeScript
   - React

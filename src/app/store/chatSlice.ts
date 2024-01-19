@@ -1,269 +1,264 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import {
-    IChat,
-    IChatState,
-    IIncomingMessage,
-    IMessage,
-    IOutgoingMessageStatus,
+  IChat,
+  IChatState,
+  IIncomingMessage,
+  IMessage,
+  IOutgoingMessageStatus,
 } from "./interfaces";
 
 const initialState: IChatState = {
-    loginStatus: false,
-    accountState: "idle",
-    id: "",
-    token: "",
-    chats: [],
-    phoneInput: "",
-    newMessageInput: "",
-    sendingStatus: "idle",
-    recievingStatus: "idle",
-    getAccountStateStatus: "idle",
-    recieptIds: [],
+  loginStatus: false,
+  accountState: "idle",
+  id: "",
+  token: "",
+  chats: [],
+  phoneInput: "",
+  newMessageInput: "",
+  sendingStatus: "idle",
+  recievingStatus: "idle",
+  getAccountStateStatus: "idle",
+  recieptIds: [],
 };
 
-
 export const sendMes = createAsyncThunk(
-    "chat/sendMessage",
-    async ({id, token, chats, newMessageInput} : {id: string, token: string, chats: IChat[], newMessageInput: string}) => {
-        const chatToSendMessage = chats.find(
-            (chat) => chat.current === true
-        );
-        try {
-            const response = await fetch(
-                `https://api.green-api.com/waInstance${id}/sendMessage/${token}`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        chatId: chatToSendMessage?.phone + "@c.us",
-                        message: newMessageInput,
-                    }),
-                }
-            );
-            console.log(response);
-            const json = await response.json();
-            if (!response.ok) console.error("Failed to send message");
-            return json;
-        } catch (error) {
-            return error;
+  "chat/sendMessage",
+  async ({
+    id,
+    token,
+    chats,
+    newMessageInput,
+  }: {
+    id: string;
+    token: string;
+    chats: IChat[];
+    newMessageInput: string;
+  }) => {
+    const chatToSendMessage = chats.find((chat) => chat.current === true);
+    try {
+      const response = await fetch(
+        `https://api.green-api.com/waInstance${id}/sendMessage/${token}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            chatId: chatToSendMessage?.phone + "@c.us",
+            message: newMessageInput,
+          }),
         }
+      );
+      console.log(response);
+      const json = await response.json();
+      if (!response.ok) console.error("Failed to send message");
+      return json;
+    } catch (error) {
+      return error;
     }
+  }
 );
 
 export const recieveMes = createAsyncThunk(
-    "chat/recieveMessage",
-    async ({id, token} : {id:string, token: string}) => {
-        try {
-            const response =
-                await fetch(`https://api.green-api.com/waInstance${id}/ReceiveNotification/${token}
+  "chat/recieveMessage",
+  async ({ id, token }: { id: string; token: string }) => {
+    try {
+      const response =
+        await fetch(`https://api.green-api.com/waInstance${id}/ReceiveNotification/${token}
             `);
-            const json = await response.json();
-            return json;
-        } catch (error) {
-            return error;
-        }
+      const json = await response.json();
+      return json;
+    } catch (error) {
+      return error;
     }
+  }
 );
 
 export const deleteNotification = createAsyncThunk(
-    "chat/deleteNotification",
-    async ({
-        id,
-        token,
-        receiptId,
-    }: {
-        id: string;
-        token: string;
-        receiptId: number;
-    }) => {
-        try {
-            const response = await fetch(
-                `https://api.green-api.com/waInstance${id}/DeleteNotification/${token}/${receiptId}
+  "chat/deleteNotification",
+  async ({
+    id,
+    token,
+    receiptId,
+  }: {
+    id: string;
+    token: string;
+    receiptId: number;
+  }) => {
+    try {
+      const response = await fetch(
+        `https://api.green-api.com/waInstance${id}/DeleteNotification/${token}/${receiptId}
             `,
-                {
-                    method: "DELETE",
-                    headers: {
-                        "Content-type": "application/json",
-                    },
-                }
-            );
-            const json = await response.json();
-            return json;
-        } catch (error) {
-            return error;
+        {
+          method: "DELETE",
+          headers: {
+            "Content-type": "application/json",
+          },
         }
+      );
+      const json = await response.json();
+      return json;
+    } catch (error) {
+      return error;
     }
+  }
 );
 
 export const chatSlice = createSlice({
-    name: "chat",
-    initialState,
-    reducers: {
-        doLogin: (
-            state,
-            action: PayloadAction<{ id: string; token: string }>
-        ) => {
-            state.id = action.payload.id;
-            state.token = action.payload.token;
-            state.loginStatus = true;
-        },
-        changePhoneInput: (state, action: PayloadAction<string>) => {
-            state.phoneInput = action.payload;
-        },
-        addChat: (state, action: PayloadAction<string>) => {
-            state.chats = state.chats.map((chat) => {
-                chat.current = false;
-                return chat;
-            });
-            state.chats?.push({
-                id: action.payload + "@c.us",
-                phone: action.payload,
-                messages: { sended: [], received: [] },
-                current: true,
-                senderName: "",
-            });
-            state.phoneInput = "";
-        },
-        changeNewMessageInput: (state, action: PayloadAction<string>) => {
-            state.newMessageInput = action.payload;
-        },
-        selectChat: (state, action: PayloadAction<string>) => {
-            state.chats = state.chats.map((chat) => {
-                if (chat.id === action.payload) {
-                    chat.current = true;
-                } else {
-                    chat.current = false;
-                }
-                return chat;
-            });
-        },
-        clearReceiptsIds: (state) => {
-            state.recieptIds = [];
-        },
+  name: "chat",
+  initialState,
+  reducers: {
+    doLogin: (state, action: PayloadAction<{ id: string; token: string }>) => {
+      state.id = action.payload.id;
+      state.token = action.payload.token;
+      state.loginStatus = true;
     },
-    extraReducers: (builder) => {
-        builder.addCase(sendMes.pending, (state) => {
-            state.sendingStatus = "sending";
+    changePhoneInput: (state, action: PayloadAction<string>) => {
+      state.phoneInput = action.payload;
+    },
+    addChat: (state, action: PayloadAction<string>) => {
+      state.chats = state.chats.map((chat) => {
+        chat.current = false;
+        return chat;
+      });
+      state.chats?.push({
+        id: action.payload + "@c.us",
+        phone: action.payload,
+        messages: { sended: [], received: [] },
+        current: true,
+        senderName: "",
+      });
+      state.phoneInput = "";
+    },
+    changeNewMessageInput: (state, action: PayloadAction<string>) => {
+      state.newMessageInput = action.payload;
+    },
+    selectChat: (state, action: PayloadAction<string>) => {
+      state.chats = state.chats.map((chat) => {
+        if (chat.id === action.payload) {
+          chat.current = true;
+        } else {
+          chat.current = false;
+        }
+        return chat;
+      });
+    },
+    clearReceiptsIds: (state) => {
+      state.recieptIds = [];
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(sendMes.pending, (state) => {
+      state.sendingStatus = "sending";
+    });
+    builder.addCase(sendMes.rejected, (state) => {
+      state.sendingStatus = "error";
+    });
+    builder.addCase(
+      sendMes.fulfilled,
+      (state, action: PayloadAction<{ idMessage: string }>) => {
+        state.sendingStatus = "success";
+        state.chats = state.chats.map((chat) => {
+          if (chat.current === true) {
+            chat.messages.sended.push({
+              id: action.payload.idMessage,
+              content: state.newMessageInput,
+              time: new Date().getTime(),
+              type: "sended",
+              status: "",
+            });
+          }
+          return chat;
         });
-        builder.addCase(sendMes.rejected, (state) => {
-            state.sendingStatus = "error";
-        });
-        builder.addCase(
-            sendMes.fulfilled,
-            (state, action: PayloadAction<{ idMessage: string }>) => {
-                state.sendingStatus = "success";
-                state.chats = state.chats.map((chat) => {
-                    if (chat.current === true) {
-                        chat.messages.sended.push({
-                            id: action.payload.idMessage,
-                            content: state.newMessageInput,
-                            time: new Date().getTime(),
-                            type: "sended",
-                            status: "",
-                        });
-                    }
-                    return chat;
-                });
-                state.newMessageInput = "";
-            }
-        );
-        builder.addCase(recieveMes.pending, (state) => {
-            state.recievingStatus = "recieving";
-        });
-        builder.addCase(recieveMes.rejected, (state) => {
-            state.recievingStatus = "error";
-        });
-        builder.addCase(
-            recieveMes.fulfilled,
-            (
-                state,
-                action: PayloadAction<IIncomingMessage | IOutgoingMessageStatus>
-            ) => {
-                state.recievingStatus = "success";
-                if (action.payload) {
-                    const body = action.payload.body;
+        state.newMessageInput = "";
+      }
+    );
+    builder.addCase(recieveMes.pending, (state) => {
+      state.recievingStatus = "recieving";
+    });
+    builder.addCase(recieveMes.rejected, (state) => {
+      state.recievingStatus = "error";
+    });
+    builder.addCase(
+      recieveMes.fulfilled,
+      (
+        state,
+        action: PayloadAction<IIncomingMessage | IOutgoingMessageStatus>
+      ) => {
+        state.recievingStatus = "success";
+        if (action.payload) {
+          const body = action.payload.body;
 
-                    const receiptId = action.payload.receiptId;
-                    let messageToAdd: IMessage;
-                    if (body.typeWebhook === "incomingMessageReceived") {
-                        const textContent =
-                            body.messageData.textMessageData.textMessage;
-                        const chatId = body.senderData.chatId;
-                        messageToAdd = {
-                            id: body.idMessage,
-                            content: textContent,
-                            time: body.timestamp * 1000,
-                            type: "recieved",
-                            status: "",
-                        };
-                        if (!state.chats.find((chat) => chat.id === chatId)) {
-                            state.chats.push({
-                                id: chatId,
-                                phone: chatId.slice(0, -5),
-                                messages: {
-                                    sended: [],
-                                    received: [messageToAdd],
-                                },
-                                current: false,
-                                senderName: body.senderData.senderName,
-                            });
-                        } else {
-                            state.chats = state.chats.map((chat) => {
-                                if (chat.id === chatId) {
-                                    chat.messages.received.push(messageToAdd);
-                                }
-                                return chat;
-                            });
-                        }
-                        if (
-                            !state.recieptIds.find(
-                                (id) => id.receiptId === receiptId
-                            )
-                        ) {
-                            state.recieptIds.push({
-                                receiptId: receiptId,
-                                type: "incomingMessageReceived",
-                            });
-                        }
-                    } else if (body.typeWebhook === "outgoingMessageStatus") {
-                        state.chats.map((chat) => {
-                            if (chat.id === body.chatId) {
-                                chat.messages.sended.map((message) => {
-                                    if (message.id === body.idMessage) {
-                                        message.status = body.status;
-                                    }
-                                    return message;
-                                });
-                            }
-                            return chat;
-                        });
-                        if (
-                            !state.recieptIds.find(
-                                (id) => id.receiptId === receiptId
-                            )
-                        ) {
-                            state.recieptIds.push({
-                                receiptId: receiptId,
-                                type: "outgoingMessageStatus",
-                            });
-                        }
-                    }
+          const receiptId = action.payload.receiptId;
+          let messageToAdd: IMessage;
+          if (body.typeWebhook === "incomingMessageReceived") {
+            const textContent = body.messageData.textMessageData.textMessage;
+            const chatId = body.senderData.chatId;
+            messageToAdd = {
+              id: body.idMessage,
+              content: textContent,
+              time: body.timestamp * 1000,
+              type: "recieved",
+              status: "",
+            };
+            if (!state.chats.find((chat) => chat.id === chatId)) {
+              state.chats.push({
+                id: chatId,
+                phone: chatId.slice(0, -5),
+                messages: {
+                  sended: [],
+                  received: [messageToAdd],
+                },
+                current: false,
+                senderName: body.senderData.senderName,
+              });
+            } else {
+              state.chats = state.chats.map((chat) => {
+                if (chat.id === chatId) {
+                  chat.messages.received.push(messageToAdd);
                 }
+                return chat;
+              });
             }
-        );
-    },
+            if (!state.recieptIds.find((id) => id.receiptId === receiptId)) {
+              state.recieptIds.push({
+                receiptId: receiptId,
+                type: "incomingMessageReceived",
+              });
+            }
+          } else if (body.typeWebhook === "outgoingMessageStatus") {
+            state.chats.map((chat) => {
+              if (chat.id === body.chatId) {
+                chat.messages.sended.map((message) => {
+                  if (message.id === body.idMessage) {
+                    message.status = body.status;
+                  }
+                  return message;
+                });
+              }
+              return chat;
+            });
+            if (!state.recieptIds.find((id) => id.receiptId === receiptId)) {
+              state.recieptIds.push({
+                receiptId: receiptId,
+                type: "outgoingMessageStatus",
+              });
+            }
+          }
+        }
+      }
+    );
+  },
 });
 
 export const {
-    doLogin,
-    changePhoneInput,
-    addChat,
-    changeNewMessageInput,
-    selectChat,
-    clearReceiptsIds,
+  doLogin,
+  changePhoneInput,
+  addChat,
+  changeNewMessageInput,
+  selectChat,
+  clearReceiptsIds,
 } = chatSlice.actions;
 
 export const selectLoginStatus = (state: RootState) => state.chat.loginStatus;
@@ -274,6 +269,6 @@ export const selectPhoneInput = (state: RootState) => state.chat.phoneInput;
 export const selectChats = (state: RootState) => state.chat.chats;
 export const selectReceiptIds = (state: RootState) => state.chat.recieptIds;
 export const selectNewMessageInput = (state: RootState) =>
-    state.chat.newMessageInput;
+  state.chat.newMessageInput;
 
 export default chatSlice.reducer;
